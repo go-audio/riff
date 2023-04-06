@@ -1,6 +1,6 @@
 # Resource Interchange File Format parser
 
-[![GoDoc](http://godoc.org/github.com/go-audio/riff?status.svg)](http://godoc.org/go-audio/riff)
+[![GoDoc](http://godoc.org/github.com/go-audio/riff?status.svg)](http://godoc.org/github.com/go-audio/riff)
 
 [![Build
 Status](https://travis-ci.org/go-audio/riff.png)](https://travis-ci.org/go-audio/riff)

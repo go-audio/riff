@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-// Chunk represents the header and containt of a sub block
+// Chunk represents the header and content of a sub block
 // See https://tech.ebu.ch/docs/tech/tech3285.pdf to see how
 // audio content is stored in a BWF/WAVE file.
 type Chunk struct {
@@ -47,7 +47,7 @@ func (ch *Chunk) DecodeWavHeader(p *Parser) error {
 		}
 
 		// if we aren't dealing with a PCM file, we advance to reader to the
-		// end of the chunck.
+		// end of the chunk.
 		if ch.Size > 16 {
 			extra := make([]byte, ch.Size-16)
 			ch.ReadLE(&extra)
@@ -67,7 +67,9 @@ func (ch *Chunk) Done() {
 	}
 }
 
-// IsFullyRead checks if we're finished reading the chunk
+// IsFullyRead checks if we're finished reading the chunk data.
+// This doesn't include any padding byte. Drain should be used to
+// ensure that has also been read.
 func (ch *Chunk) IsFullyRead() bool {
 	if ch == nil || ch.R == nil {
 		return true
@@ -119,6 +121,13 @@ func (ch *Chunk) ReadByte() (byte, error) {
 // Drain discards the rest of the chunk
 func (ch *Chunk) Drain() {
 	bytesAhead := ch.Size - ch.Pos
+	// all RIFF chunks (including WAVE "data" chunks) must be word aligned.
+	// If the data has an odd number of bytes a padding byte with a value
+	// of zero must be placed at the end of the sample data.
+	// The "data" chunk header's size does not include this byte.
+	if ch.Size%2 == 1 {
+		bytesAhead++
+	}
 	for bytesAhead > 0 {
 		readSize := int64(bytesAhead)
 

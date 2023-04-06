@@ -133,13 +133,6 @@ func (c *Parser) NextChunk() (*Chunk, error) {
 		return nil, err
 	}
 
-	// all RIFF chunks (including WAVE "data" chunks) must be word aligned.
-	// If the data uses an odd number of bytes, a padding byte with a value of zero must be placed at the end of the sample data.
-	// The "data" chunk header's size should not include this byte.
-	if size%2 == 1 {
-		size++
-	}
-
 	ch := &Chunk{
 		ID:   id,
 		Size: int(size),
